@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
 import com.company.payment.payment.model.Merchant;
+import com.company.payment.payment.model.MerchantStatus;
 
 @Service
 public class MerchantImportService {
@@ -90,7 +91,7 @@ public class MerchantImportService {
 		merchant.setName(values[0]);
 		merchant.setDescription(values[1]);
 		merchant.setEmail(values[2]);
-		merchant.setStatus(Integer.valueOf(values[3]));
+		merchant.setStatus(MerchantStatus.valueOf(values[3]));
 		merchant.setTotalTransactionSum(0.0);
 		return merchant;
 	}

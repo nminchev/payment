@@ -1,13 +1,6 @@
 package com.company.payment.payment.model.repository;
 
 import java.util.List;
-import java.util.Set;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,5 +55,4 @@ public class MerchantRepository {
 	public void saveOrUpdate(Merchant merchant) {
 		merchantDao.saveOrUpdate(merchant);
 	}
-
 }

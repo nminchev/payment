@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.test.annotation.Rollback;
 
 import com.company.payment.payment.model.dao.HibernateDao;
@@ -26,15 +27,15 @@ public class MerchantTest {
 	private HibernateDao<Merchant> merchantDao;
 
 	@Test
-	// @Commit
-	@Rollback
+	 @Commit
+	//@Rollback
 	public void testMerchantInsert() {
 
 		Merchant merchant = new Merchant();
 		merchant.setName("emerchantpay");
 		merchant.setDescription("emerchantpay company in Bulgaria");
 		merchant.setEmail("hr@emerchantpay.com");
-		merchant.setStatus(1);
+		merchant.setStatus(MerchantStatus.ACTIVE);
 		merchant.setTotalTransactionSum(10.123);
 
 		merchantDao.save(merchant);

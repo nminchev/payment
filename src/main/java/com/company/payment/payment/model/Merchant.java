@@ -4,13 +4,13 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 
 @Entity
 @Table(name = "MERCHANT")
@@ -37,9 +37,8 @@ public class Merchant implements Serializable {
 	private String email;
 
 	@Column(name = "status", unique = false, nullable = false)
-	@Min(value = 0, message = "Status should be either 0 or 1")
-	@Max(value = 1, message = "Status should be either 0 or 1")
-	private Integer status;
+	@Enumerated(EnumType.STRING)
+	private MerchantStatus status;
 
 	@Column(name = "total_transaction_sum", unique = false, nullable = false)
 	private Double totalTransactionSum;
@@ -76,11 +75,11 @@ public class Merchant implements Serializable {
 		this.email = email;
 	}
 
-	public Integer getStatus() {
+	public MerchantStatus getStatus() {
 		return status;
 	}
 
-	public void setStatus(Integer status) {
+	public void setStatus(MerchantStatus status) {
 		this.status = status;
 	}
 
