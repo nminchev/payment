@@ -2,6 +2,13 @@ package com.company.payment.payment.model.dao;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -23,10 +30,12 @@ public class HibernateDao<T extends Serializable> {
 	}
 
 	public Integer save(T param) {
+		validate(param);
 		return (Integer) sessionFactory.getCurrentSession().save(param);
 	}
 
 	public void saveOrUpdate(T param) {
+		validate(param);
 		sessionFactory.getCurrentSession().saveOrUpdate(param);
 	}
 
@@ -48,6 +57,15 @@ public class HibernateDao<T extends Serializable> {
 
 	public T get(Integer id, Class<T> type) {
 		return (T) sessionFactory.getCurrentSession().get(type, id);
+	}
+
+	public void validate(T param) throws ConstraintViolationException {
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		Validator validator = factory.getValidator();
+		Set<ConstraintViolation<T>> violations = validator.validate(param);
+		if (!violations.isEmpty()) {
+			throw new ConstraintViolationException(violations);
+		}
 	}
 
 	@SuppressWarnings("unchecked")

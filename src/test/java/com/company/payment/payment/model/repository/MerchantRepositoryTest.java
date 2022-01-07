@@ -15,7 +15,7 @@ public class MerchantRepositoryTest {
 
 	@Test
 	public void testRetriveeMerchantById() throws Exception {
-		Merchant merchant = merchantRepository.retriveeMerchantById(1);
+		Merchant merchant = merchantRepository.retrieveMerchantById(1);
 
 		assertNotNull(merchant);
 	}

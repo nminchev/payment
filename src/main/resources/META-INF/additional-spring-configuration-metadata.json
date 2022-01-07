@@ -1,0 +1,32 @@
+{"properties": [
+  {
+    "name": "payment.merchant.import",
+    "type": "java.lang.String",
+    "description": "A description for 'payment.merchant.import'"
+  },
+  {
+    "name": "key.common",
+    "type": "java.lang.String",
+    "description": "A description for 'key.common'"
+  },
+  {
+    "name": "key.public.folder",
+    "type": "java.lang.String",
+    "description": "A description for 'key.public.folder'"
+  },
+  {
+    "name": "key.private.folder",
+    "type": "java.lang.String",
+    "description": "A description for 'key.private.folder'"
+  },
+  {
+    "name": "payment.merchant.file",
+    "type": "java.lang.String",
+    "description": "A description for 'payment.merchant.file'"
+  },
+  {
+    "name": "payment.merchant.delimiter",
+    "type": "java.lang.String",
+    "description": "A description for 'payment.merchant.delimiter'"
+  }
+]}

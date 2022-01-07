@@ -8,6 +8,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 @Entity
 @Table(name = "MERCHANT")
@@ -30,9 +33,12 @@ public class Merchant implements Serializable {
 	private String description;
 
 	@Column(name = "email", unique = true, nullable = false)
+	@Email(message = "Email should be valid")
 	private String email;
 
 	@Column(name = "status", unique = false, nullable = false)
+	@Min(value = 0, message = "Status should be either 0 or 1")
+	@Max(value = 1, message = "Status should be either 0 or 1")
 	private Integer status;
 
 	@Column(name = "total_transaction_sum", unique = false, nullable = false)
@@ -85,9 +91,4 @@ public class Merchant implements Serializable {
 	public void setTotalTransactionSum(Double totalTransactionSum) {
 		this.totalTransactionSum = totalTransactionSum;
 	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
-
 }
