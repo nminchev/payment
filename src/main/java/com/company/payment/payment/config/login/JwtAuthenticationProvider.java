@@ -1,10 +1,12 @@
-package com.company.payment.payment.config;
+package com.company.payment.payment.config.login;
 
+import java.security.PrivateKey;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,13 +14,13 @@ import org.springframework.security.authentication.dao.AbstractUserDetailsAuthen
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.company.payment.payment.model.Merchant;
 import com.company.payment.payment.model.MerchantStatus;
 import com.company.payment.payment.model.repository.MerchantRepository;
 import com.company.payment.payment.util.PaymentConstants;
+import com.company.payment.payment.util.PaymentUtils;
 
 public class JwtAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
@@ -26,6 +28,9 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
 
 	@Autowired
 	private MerchantRepository merchantRepository;
+
+	@Value("${key.private.folder}")
+	private String keyPrivateFolder;
 
 	@Override
 	protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
@@ -54,15 +59,34 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
 			List<GrantedAuthority> authorityList = AuthorityUtils
 					.commaSeparatedStringToAuthorityList(PaymentConstants.ROLE_MERCHANT);
 			String jwtToken = (String) jwtAuthenticationToken.getCredentials();
-			UserDetails userDetails = new User(email, jwtToken, authorityList);
 
-			log.info("Successfully retrived merchant");
+			PrivateKey privateKey = getMerchantPrivateKey(merchant);
+			UserDetails userDetails = new PaymentUserDetails(email, jwtToken, authorityList, merchant.getMerchantId(),
+					privateKey);
+
+			log.info("Successfully retrieved merchant");
 			return userDetails;
 
 		} catch (Exception e) {
 			throw new AuthenticationCredentialsNotFoundException("Invalid token", e);
 		}
 
+	}
+
+	/**
+	 * getMerchantPrivateKey
+	 * 
+	 * @param merchant
+	 * @return
+	 * @throws Exception
+	 */
+	private PrivateKey getMerchantPrivateKey(Merchant merchant) throws Exception {
+		String privateKeyFilename = PaymentUtils.generateKeyFilename(merchant, PrivateKey.class.getSimpleName());
+		String privateKeyPath = keyPrivateFolder + privateKeyFilename;
+
+		PrivateKey privateKey = PaymentUtils.getPrivateKeyFromFile(privateKeyPath);
+
+		return privateKey;
 	}
 
 	@Override

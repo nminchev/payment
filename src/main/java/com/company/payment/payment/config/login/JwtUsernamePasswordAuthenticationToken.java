@@ -1,4 +1,4 @@
-package com.company.payment.payment.config;
+package com.company.payment.payment.config.login;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 

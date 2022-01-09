@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.company.payment.payment.config.login.JwtAuthenticationFilter;
 import com.company.payment.payment.util.PaymentConstants;
 
 @Configuration

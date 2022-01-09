@@ -7,6 +7,15 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
+import com.company.payment.payment.config.login.JwtAuthenticationFilter;
+import com.company.payment.payment.config.login.JwtAuthenticationProvider;
+import com.company.payment.payment.config.login.JwtAuthenticationSuccessHandler;
+import com.company.payment.payment.service.factory.AuthorizeAction;
+import com.company.payment.payment.service.factory.ChargeAction;
+import com.company.payment.payment.service.factory.RefundAction;
+import com.company.payment.payment.service.factory.ReversalAction;
+import com.company.payment.payment.service.factory.TransactionActionFactory;
+
 @Configuration
 public class BeanConfig {
 
@@ -34,6 +43,31 @@ public class BeanConfig {
 	@Bean
 	public AuthenticationSuccessHandler jwtAuthenticationSuccessHandler() {
 		return new JwtAuthenticationSuccessHandler();
+	}
+
+	@Bean
+	public TransactionActionFactory transactionActionFactory() {
+		return new TransactionActionFactory();
+	}
+
+	@Bean
+	public AuthorizeAction authorizeAction() {
+		return new AuthorizeAction();
+	}
+
+	@Bean
+	public ChargeAction chargeAction() {
+		return new ChargeAction();
+	}
+
+	@Bean
+	public RefundAction refundAction() {
+		return new RefundAction();
+	}
+
+	@Bean
+	public ReversalAction reversalAction() {
+		return new ReversalAction();
 	}
 
 }
