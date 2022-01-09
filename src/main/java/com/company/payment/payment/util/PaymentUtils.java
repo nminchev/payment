@@ -10,7 +10,7 @@ public class PaymentUtils {
 	 * Generate key filename
 	 * 
 	 * @param merchant
-	 * @param passwordEncoder
+	 * @param type
 	 * @return
 	 */
 	public static String generateKeyFilename(Merchant merchant, String type) {
