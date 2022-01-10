@@ -29,8 +29,6 @@ public class PaymentService {
 		try {
 			Map<String, String> params = getPayloadParams(payload);
 
-			validateParams(params);
-
 			AbstractAction action = transactionActionFactory.getAction(params);
 			action.processRequest();
 
@@ -42,16 +40,6 @@ public class PaymentService {
 		}
 
 		return response;
-
-	}
-
-	/**
-	 * Validate params
-	 * 
-	 * @param params
-	 */
-	private void validateParams(Map<String, String> params) {
-		// TODO Auto-generated method stub
 
 	}
 

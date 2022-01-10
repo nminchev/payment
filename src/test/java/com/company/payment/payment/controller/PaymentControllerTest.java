@@ -15,8 +15,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import com.company.payment.payment.model.TransactionType;
 import com.company.payment.payment.util.PaymentUtils;
@@ -34,7 +32,7 @@ public class PaymentControllerTest {
 
 	@Test
 	public void testAuthorizeTran() throws Exception {
-		TestRestTemplate restTemplate = new TestRestTemplate();
+		TestRestTemplate restTestTemplate = new TestRestTemplate();
 
 		HttpHeaders headers = prepareHeader();
 
@@ -45,9 +43,9 @@ public class PaymentControllerTest {
 		payloadMap.put("customer_phone", "0888567856");
 		payloadMap.put("reference_id", "ddd");
 
-		HttpEntity<MultiValueMap<String, String>> request = prepareRequest(headers, payloadMap);
+		HttpEntity<PaymentPayload> request = prepareRequest(headers, payloadMap);
 
-		ResponseEntity<String> responsePost = restTemplate.postForEntity(HOST, request, String.class);
+		ResponseEntity<String> responsePost = restTestTemplate.postForEntity(HOST, request, String.class);
 		HttpStatus statusCode = responsePost.getStatusCode();
 		log.info(statusCode);
 
@@ -57,25 +55,25 @@ public class PaymentControllerTest {
 	}
 
 	/**
-	 * Prepare Request with Public Key encryption
+	 * Prepare JSON request
 	 * 
 	 * @param headers
 	 * @param payloadMap
 	 * @return
 	 * @throws Exception
 	 */
-	private HttpEntity<MultiValueMap<String, String>> prepareRequest(HttpHeaders headers,
-			Map<String, String> payloadMap) throws Exception {
+	private HttpEntity<PaymentPayload> prepareRequest(HttpHeaders headers, Map<String, String> payloadMap)
+			throws Exception {
 		String publicKeyPath = keyPublicFolder + MERCHANT_EMAIL + "_PublicKey";
 		PublicKey publicKey = PaymentUtils.getPublicKeyFromFile(publicKeyPath);
 
 		String payload = PaymentUtils.convertMapToString(payloadMap);
 		payload = PaymentUtils.encrypt(payload, publicKey);
 
-		MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
-		map.add("payload", payload);
+		PaymentPayload paymentPayload = new PaymentPayload();
+		paymentPayload.setPayload(payload);
 
-		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
+		HttpEntity<PaymentPayload> request = new HttpEntity<PaymentPayload>(paymentPayload, headers);
 		return request;
 	}
 
@@ -87,7 +85,7 @@ public class PaymentControllerTest {
 	 */
 	private HttpHeaders prepareHeader() throws Exception {
 		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+		headers.setContentType(MediaType.APPLICATION_JSON);
 
 		String jwtTokenPath = keyPublicFolder + MERCHANT_EMAIL + "_jwtToken";
 		String jwtToken = PaymentUtils.getJwtTokenFromFile(jwtTokenPath);

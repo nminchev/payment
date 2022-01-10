@@ -1,5 +1,6 @@
 package com.company.payment.payment.config;
 
+import org.hibernate.validator.internal.constraintvalidators.bv.EmailValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -68,6 +69,11 @@ public class BeanConfig {
 	@Bean
 	public ReversalAction reversalAction() {
 		return new ReversalAction();
+	}
+
+	@Bean
+	public EmailValidator emailValidator() {
+		return new EmailValidator();
 	}
 
 }
