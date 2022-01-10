@@ -83,6 +83,33 @@ public class PaymentControllerTest {
 		log.info("uuid=" + body.getUuid());
 
 	}
+	
+	@Test
+	public void testRefundTran() throws Exception {
+		TestRestTemplate restTestTemplate = new TestRestTemplate();
+
+		HttpHeaders headers = prepareHeader();
+
+		Map<String, String> payloadMap = new HashMap<String, String>();
+		payloadMap.put("type", TransactionType.REFUND.toString());
+		payloadMap.put("uuid", "e05587ea-8567-4599-a9ac-a4710836069d");
+		payloadMap.put("amount", "100.11");
+		payloadMap.put("customer_email", "customer@gmail.com");
+		payloadMap.put("customer_phone", "0888567856");
+		payloadMap.put("reference_id", "10000002");
+
+		HttpEntity<PaymentPayload> request = prepareRequest(headers, payloadMap);
+
+		ResponseEntity<TransactionResponse> responsePost = restTestTemplate.postForEntity(HOST, request,
+				TransactionResponse.class);
+		HttpStatus statusCode = responsePost.getStatusCode();
+		log.info(statusCode);
+
+		TransactionResponse body = responsePost.getBody();
+		log.info("error=" + body.getError());
+		log.info("uuid=" + body.getUuid());
+
+	}
 
 	/**
 	 * Prepare JSON request

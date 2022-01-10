@@ -151,7 +151,24 @@ public class PayloadValidator implements ConstraintValidator<PayloadValid, Strin
 				}
 			}
 
-			// check for valid uuid in DB for the merchant
+			if (transactionType == TransactionType.REFUND) {
+				// check for already REFUND transaction for the merchant
+				Transaction refundTransaction = transactionRepository.getTransactionByUuid(uuid, merchantId,
+						TransactionType.REFUND);
+				if (refundTransaction != null) {
+					throw new ValidationException(String.format("transaction with uuid %s already refunded", uuid));
+				}
+
+				// check for existing CHARGE transaction for the merchant
+				Transaction chargeTransaction = transactionRepository.getTransactionByUuid(uuid, merchantId,
+						TransactionType.CHARGE);
+				if (chargeTransaction == null) {
+					throw new ValidationException(String.format("transaction with uuid %s nor charged", uuid));
+				}
+
+			}
+
+			// check for valid Charge transaction for the merchant
 			if (transactionType == TransactionType.CHARGE || transactionType == TransactionType.REFUND
 					|| transactionType == TransactionType.REVERSAL) {
 

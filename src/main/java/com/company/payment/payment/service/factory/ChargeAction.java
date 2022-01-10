@@ -24,15 +24,15 @@ public class ChargeAction extends AbstractAction {
 				TransactionType.AUTHORIZE);
 
 		// save charge transaction
-		Transaction changeTransaction = transaction.clone();
-		changeTransaction.setStatus(TransactionStatus.APPROVED);
-		changeTransaction.setType(TransactionType.CHARGE);
-		transactionRepository.saveOrUpdate(changeTransaction);
+		Transaction chargeTransaction = transaction.clone();
+		chargeTransaction.setStatus(TransactionStatus.APPROVED);
+		chargeTransaction.setType(TransactionType.CHARGE);
+		transactionRepository.saveOrUpdate(chargeTransaction);
 
 		// add merchant amount
 		Merchant merchant = merchantRepository.getMerchantById(merchantId);
 		Double totalTransactionSum = merchant.getTotalTransactionSum();
-		totalTransactionSum += changeTransaction.getAmount();
+		totalTransactionSum += chargeTransaction.getAmount();
 		merchant.setTotalTransactionSum(totalTransactionSum);
 		merchantRepository.saveOrUpdate(merchant);
 
