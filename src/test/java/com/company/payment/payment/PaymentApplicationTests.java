@@ -5,6 +5,7 @@ import java.security.KeyPairGenerator;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -17,6 +18,7 @@ class PaymentApplicationTests {
 	}
 
 	@Test
+	@Rollback
 	public void testKeyGenerations() throws Exception {
 		KeyPairGenerator generator = null;
 		generator = KeyPairGenerator.getInstance("RSA");

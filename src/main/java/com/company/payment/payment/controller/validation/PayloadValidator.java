@@ -164,7 +164,7 @@ public class PayloadValidator implements ConstraintValidator<PayloadValid, Strin
 				Transaction chargeTransaction = transactionRepository.getTransactionByUuid(uuid, merchantId,
 						TransactionType.CHARGE);
 				if (chargeTransaction == null) {
-					throw new ValidationException(String.format("transaction with uuid %s nor charged", uuid));
+					throw new ValidationException(String.format("transaction with uuid %s not charged", uuid));
 				}
 
 			}

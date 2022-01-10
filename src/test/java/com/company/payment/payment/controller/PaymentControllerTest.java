@@ -6,7 +6,12 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -21,6 +26,8 @@ import com.company.payment.payment.model.repository.response.TransactionResponse
 import com.company.payment.payment.util.PaymentUtils;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(Lifecycle.PER_CLASS)
 public class PaymentControllerTest {
 	private static Logger log = LogManager.getLogger(PaymentControllerTest.class);
 
@@ -31,7 +38,14 @@ public class PaymentControllerTest {
 	@Value("${key.public.folder}")
 	private String keyPublicFolder;
 
+	private String uuid;
+	private String amount = "2000";
+	private String customerEmail = "customer@gmail.com";
+	private String customerPhone = "0888567856";
+	private String referenceId = "10000003"; // should be unique for merchant
+
 	@Test
+	@Order(value = 1)
 	public void testAuthorizeTran() throws Exception {
 		TestRestTemplate restTestTemplate = new TestRestTemplate();
 
@@ -39,10 +53,10 @@ public class PaymentControllerTest {
 
 		Map<String, String> payloadMap = new HashMap<String, String>();
 		payloadMap.put("type", TransactionType.AUTHORIZE.toString());
-		payloadMap.put("amount", "100.11");
-		payloadMap.put("customer_email", "customer@gmail.com");
-		payloadMap.put("customer_phone", "0888567856");
-		payloadMap.put("reference_id", "10000002");
+		payloadMap.put("amount", amount);
+		payloadMap.put("customer_email", customerEmail);
+		payloadMap.put("customer_phone", customerPhone);
+		payloadMap.put("reference_id", referenceId);
 
 		HttpEntity<PaymentPayload> request = prepareRequest(headers, payloadMap);
 
@@ -55,9 +69,12 @@ public class PaymentControllerTest {
 		log.info("error=" + body.getError());
 		log.info("uuid=" + body.getUuid());
 
+		uuid = body.getUuid();
+
 	}
 
 	@Test
+	@Order(value = 2)
 	public void testChargeTran() throws Exception {
 		TestRestTemplate restTestTemplate = new TestRestTemplate();
 
@@ -65,11 +82,11 @@ public class PaymentControllerTest {
 
 		Map<String, String> payloadMap = new HashMap<String, String>();
 		payloadMap.put("type", TransactionType.CHARGE.toString());
-		payloadMap.put("uuid", "e05587ea-8567-4599-a9ac-a4710836069d");
-		payloadMap.put("amount", "100.11");
-		payloadMap.put("customer_email", "customer@gmail.com");
-		payloadMap.put("customer_phone", "0888567856");
-		payloadMap.put("reference_id", "10000002");
+		payloadMap.put("uuid", uuid);
+		payloadMap.put("amount", amount);
+		payloadMap.put("customer_email", customerEmail);
+		payloadMap.put("customer_phone", customerPhone);
+		payloadMap.put("reference_id", referenceId);
 
 		HttpEntity<PaymentPayload> request = prepareRequest(headers, payloadMap);
 
@@ -83,8 +100,9 @@ public class PaymentControllerTest {
 		log.info("uuid=" + body.getUuid());
 
 	}
-	
+
 	@Test
+	@Order(value = 3)
 	public void testRefundTran() throws Exception {
 		TestRestTemplate restTestTemplate = new TestRestTemplate();
 
@@ -92,11 +110,11 @@ public class PaymentControllerTest {
 
 		Map<String, String> payloadMap = new HashMap<String, String>();
 		payloadMap.put("type", TransactionType.REFUND.toString());
-		payloadMap.put("uuid", "e05587ea-8567-4599-a9ac-a4710836069d");
-		payloadMap.put("amount", "100.11");
-		payloadMap.put("customer_email", "customer@gmail.com");
-		payloadMap.put("customer_phone", "0888567856");
-		payloadMap.put("reference_id", "10000002");
+		payloadMap.put("uuid", uuid);
+		payloadMap.put("amount", amount);
+		payloadMap.put("customer_email", customerEmail);
+		payloadMap.put("customer_phone", customerPhone);
+		payloadMap.put("reference_id", referenceId);
 
 		HttpEntity<PaymentPayload> request = prepareRequest(headers, payloadMap);
 
@@ -111,8 +129,8 @@ public class PaymentControllerTest {
 
 	}
 
-	
 	@Test
+	@Order(value = 4)
 	public void testReversalTran() throws Exception {
 		TestRestTemplate restTestTemplate = new TestRestTemplate();
 
@@ -120,10 +138,10 @@ public class PaymentControllerTest {
 
 		Map<String, String> payloadMap = new HashMap<String, String>();
 		payloadMap.put("type", TransactionType.REVERSAL.toString());
-		payloadMap.put("uuid", "e05587ea-8567-4599-a9ac-a4710836069d");
-		payloadMap.put("customer_email", "customer@gmail.com");
-		payloadMap.put("customer_phone", "0888567856");
-		payloadMap.put("reference_id", "10000002");
+		payloadMap.put("uuid", uuid);
+		payloadMap.put("customer_email", customerEmail);
+		payloadMap.put("customer_phone", customerPhone);
+		payloadMap.put("reference_id", referenceId);
 
 		HttpEntity<PaymentPayload> request = prepareRequest(headers, payloadMap);
 
@@ -137,7 +155,7 @@ public class PaymentControllerTest {
 		log.info("uuid=" + body.getUuid());
 
 	}
-	
+
 	/**
 	 * Prepare JSON request
 	 * 
