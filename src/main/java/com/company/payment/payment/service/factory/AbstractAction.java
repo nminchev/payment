@@ -21,7 +21,7 @@ public abstract class AbstractAction {
 	public AbstractAction() {
 	}
 
-	public abstract void processRequest();
+	public abstract void processRequest() throws Exception;
 
 	public Map<String, String> getParams() {
 		return params;

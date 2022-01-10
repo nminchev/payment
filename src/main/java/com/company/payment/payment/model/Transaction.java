@@ -24,7 +24,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Table(name = "TRANSACTION")
-public class Transaction implements Serializable {
+public class Transaction implements Serializable, Cloneable {
 
 	/**
 	 * 
@@ -74,6 +74,20 @@ public class Transaction implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "merchant_id", unique = true)
 	private Merchant merchant;
+
+	public Transaction clone() throws CloneNotSupportedException {
+		Transaction newTran = new Transaction();
+		newTran.setUuid(this.getUuid());
+		newTran.setAmount(this.getAmount());
+		newTran.setCustomerEmail(this.getCustomerEmail());
+		newTran.setCustomerPhone(this.getCustomerPhone());
+		newTran.setReferenceId(this.getReferenceId());
+		newTran.setMerchant(this.getMerchant());
+		newTran.setType(this.getType());
+		newTran.setStatus(this.getStatus());
+
+		return newTran;
+	}
 
 	public Integer getTransactionId() {
 		return transactionId;

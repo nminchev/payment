@@ -42,7 +42,7 @@ public class PaymentControllerTest {
 		payloadMap.put("amount", "100.11");
 		payloadMap.put("customer_email", "customer@gmail.com");
 		payloadMap.put("customer_phone", "0888567856");
-		payloadMap.put("reference_id", "10000001");
+		payloadMap.put("reference_id", "10000002");
 
 		HttpEntity<PaymentPayload> request = prepareRequest(headers, payloadMap);
 
@@ -65,11 +65,11 @@ public class PaymentControllerTest {
 
 		Map<String, String> payloadMap = new HashMap<String, String>();
 		payloadMap.put("type", TransactionType.CHARGE.toString());
-		payloadMap.put("uuid", "2ad328e2-c967-4996-be75-208596b81b3d");
+		payloadMap.put("uuid", "e05587ea-8567-4599-a9ac-a4710836069d");
 		payloadMap.put("amount", "100.11");
 		payloadMap.put("customer_email", "customer@gmail.com");
 		payloadMap.put("customer_phone", "0888567856");
-		payloadMap.put("reference_id", "10000001");
+		payloadMap.put("reference_id", "10000002");
 
 		HttpEntity<PaymentPayload> request = prepareRequest(headers, payloadMap);
 

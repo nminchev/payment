@@ -6,9 +6,9 @@ public class ReversalAction extends AbstractAction {
 	}
 
 	@Override
-	public void processRequest() {
+	public void processRequest() throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

@@ -39,7 +39,7 @@ public class PaymentController {
 	 */
 	@RequestMapping(value = "transaction", method = RequestMethod.POST)
 	@ResponseBody
-	public TransactionResponse postTransaction(@Valid @RequestBody PaymentPayload payload,
+	public synchronized TransactionResponse postTransaction(@Valid @RequestBody PaymentPayload payload,
 			HttpServletResponse httpServletResponse) throws Exception {
 		log.info("payload=" + payload);
 

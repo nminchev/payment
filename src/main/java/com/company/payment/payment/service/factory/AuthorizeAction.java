@@ -14,7 +14,7 @@ public class AuthorizeAction extends AbstractAction {
 	}
 
 	@Override
-	public void processRequest() {
+	public void processRequest() throws Exception {
 		Transaction transaction = new Transaction();
 
 		Double amount = Double.valueOf(params.get("amount"));

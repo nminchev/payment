@@ -51,8 +51,8 @@ public class PayloadValidator implements ConstraintValidator<PayloadValid, Strin
 			validateAmount(params, transactionType, context);
 			validateCustomerEmail(params, transactionType, context);
 			validateCustomerPhone(params, transactionType, context);
-			validateUuid(params, transactionType, context);
 			validateReferenceId(params, transactionType, context);
+			validateUuid(params, transactionType, context);
 
 		} catch (Exception e) {
 			context.disableDefaultConstraintViolation();
@@ -108,15 +108,14 @@ public class PayloadValidator implements ConstraintValidator<PayloadValid, Strin
 			PaymentUserDetails userDetails = (PaymentUserDetails) SecurityContextHolder.getContext().getAuthentication()
 					.getPrincipal();
 			Integer merchantId = userDetails.getMerchantId();
-			
-			
-			Transaction transaction = transactionRepository.getTransactionByReferenceId(referenceId, merchantId);
+
+			Transaction transaction = transactionRepository.getTransactionByReferenceId(referenceId, merchantId,
+					TransactionType.AUTHORIZE);
 			if (transaction != null) {
 				throw new ValidationException(
 						String.format("transaction with reference_id %s already authorized", referenceId));
 			}
 		}
-
 	}
 
 	/**
@@ -128,8 +127,13 @@ public class PayloadValidator implements ConstraintValidator<PayloadValid, Strin
 	 */
 	private void validateUuid(Map<String, String> params, TransactionType transactionType,
 			ConstraintValidatorContext context) throws ValidationException {
+		PaymentUserDetails userDetails = (PaymentUserDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		Integer merchantId = userDetails.getMerchantId();
+
 		// uuid should be present in case of CHARGE and REFUND
-		if (transactionType == TransactionType.CHARGE || transactionType == TransactionType.REFUND) {
+		if (transactionType == TransactionType.CHARGE || transactionType == TransactionType.REFUND
+				|| transactionType == TransactionType.REVERSAL) {
 			if (!params.containsKey("uuid")) {
 				throw new ValidationException("uuid is not present");
 			}
@@ -137,6 +141,46 @@ public class PayloadValidator implements ConstraintValidator<PayloadValid, Strin
 			String uuid = params.get("uuid");
 			if (uuid == null || "".equals(uuid)) {
 				throw new ValidationException("uuid is empty");
+			}
+
+			if (transactionType == TransactionType.CHARGE) {
+				Transaction changeTransaction = transactionRepository.getTransactionByUuid(uuid, merchantId,
+						TransactionType.CHARGE);
+				if (changeTransaction != null) {
+					throw new ValidationException(String.format("transaction with uuid %s already charged", uuid));
+				}
+			}
+
+			// check for valid uuid in DB for the merchant
+			if (transactionType == TransactionType.CHARGE || transactionType == TransactionType.REFUND
+					|| transactionType == TransactionType.REVERSAL) {
+
+				Transaction authorizeTransaction = transactionRepository.getTransactionByUuid(uuid, merchantId,
+						TransactionType.AUTHORIZE);
+				if (authorizeTransaction == null) {
+					throw new ValidationException(String.format("transaction with uuid %s not authorized", uuid));
+				}
+
+				Double amount = Double.valueOf(params.get("amount"));
+				if (!authorizeTransaction.getAmount().equals(amount)) {
+					throw new ValidationException("transaction amount does not match");
+				}
+
+				String customerPhone = params.get("customer_phone");
+				if (!authorizeTransaction.getCustomerPhone().equals(customerPhone)) {
+					throw new ValidationException("transaction customer_phone does not match");
+				}
+
+				String customerEmail = params.get("customer_email");
+				if (!authorizeTransaction.getCustomerEmail().equals(customerEmail)) {
+					throw new ValidationException("transaction customer_email does not match");
+				}
+
+				String referenceId = params.get("reference_id");
+				if (!authorizeTransaction.getReferenceId().equals(referenceId)) {
+					throw new ValidationException("transaction reference_id does not match");
+				}
+
 			}
 		}
 
@@ -190,7 +234,6 @@ public class PayloadValidator implements ConstraintValidator<PayloadValid, Strin
 		if (!valid) {
 			throw new ValidationException("customer_email is not valid");
 		}
-
 	}
 
 	/**
