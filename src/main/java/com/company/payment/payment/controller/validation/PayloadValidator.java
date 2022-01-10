@@ -168,10 +168,17 @@ public class PayloadValidator implements ConstraintValidator<PayloadValid, Strin
 
 			}
 
-			// check for valid Charge transaction for the merchant
-			if (transactionType == TransactionType.CHARGE || transactionType == TransactionType.REFUND
-					|| transactionType == TransactionType.REVERSAL) {
+			if (transactionType == TransactionType.REVERSAL) {
+				// check for already REVERSAL transaction for the merchant
+				Transaction refundTransaction = transactionRepository.getTransactionByUuid(uuid, merchantId,
+						TransactionType.REVERSAL);
+				if (refundTransaction != null) {
+					throw new ValidationException(String.format("transaction with uuid %s already reversed", uuid));
+				}
+			}
 
+			if (transactionType == TransactionType.CHARGE || transactionType == TransactionType.REFUND) {
+				// check for valid Charge transaction for the merchant
 				Transaction authorizeTransaction = transactionRepository.getTransactionByUuid(uuid, merchantId,
 						TransactionType.AUTHORIZE);
 				if (authorizeTransaction == null) {
@@ -263,18 +270,21 @@ public class PayloadValidator implements ConstraintValidator<PayloadValid, Strin
 	 */
 	private void validateAmount(Map<String, String> params, TransactionType transactionType,
 			ConstraintValidatorContext context) throws ValidationException {
-		if (!params.containsKey("amount")) {
-			throw new ValidationException("Amount is not present");
-		}
+		if (transactionType == TransactionType.AUTHORIZE || transactionType == TransactionType.REFUND
+				|| transactionType == TransactionType.CHARGE) {
+			if (!params.containsKey("amount")) {
+				throw new ValidationException("Amount is not present");
+			}
 
-		String amountStr = params.get("amount");
-		if (amountStr == null || "".equals(amountStr)) {
-			throw new ValidationException("amount is empty");
-		}
+			String amountStr = params.get("amount");
+			if (amountStr == null || "".equals(amountStr)) {
+				throw new ValidationException("amount is empty");
+			}
 
-		Double amount = Double.valueOf(params.get("amount"));
-		if (amount <= 0) {
-			throw new ValidationException("Amount should be greater than 0");
+			Double amount = Double.valueOf(params.get("amount"));
+			if (amount <= 0) {
+				throw new ValidationException("Amount should be greater than 0");
+			}
 		}
 	}
 }
