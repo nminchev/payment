@@ -1,6 +1,7 @@
 package com.company.payment.payment.service;
 
 import java.security.PrivateKey;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -10,6 +11,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.company.payment.payment.config.login.PaymentUserDetails;
+import com.company.payment.payment.model.Transaction;
+import com.company.payment.payment.model.repository.TransactionRepository;
 import com.company.payment.payment.model.repository.response.TransactionResponse;
 import com.company.payment.payment.service.factory.AbstractAction;
 import com.company.payment.payment.service.factory.TransactionActionFactory;
@@ -22,6 +25,9 @@ public class PaymentService {
 
 	@Autowired
 	private TransactionActionFactory transactionActionFactory;
+
+	@Autowired
+	protected TransactionRepository transactionRepository;
 
 	public TransactionResponse postMerchantTransaction(String payload) {
 		TransactionResponse response = new TransactionResponse();
@@ -62,4 +68,16 @@ public class PaymentService {
 		return params;
 	}
 
+	/**
+	 * Delete transaction older than specified interval
+	 */
+	public void deleteOldTranscations() {
+		List<Transaction> transactions = transactionRepository.getOldTransactions();
+		if (transactions.size() > 0) {
+			log.info(String.format("Deleting %s transactions ", transactions.size()));
+			for (Transaction transaction : transactions) {
+				transactionRepository.delete(transaction);
+			}
+		}
+	}
 }

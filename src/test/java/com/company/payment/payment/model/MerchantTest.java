@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Commit;
 import org.springframework.test.annotation.Rollback;
 
 import com.company.payment.payment.model.dao.HibernateDao;
@@ -27,8 +26,8 @@ public class MerchantTest {
 	private HibernateDao<Merchant> merchantDao;
 
 	@Test
-	 @Commit
-	//@Rollback
+	// @Commit
+	@Rollback
 	public void testMerchantInsert() {
 
 		Merchant merchant = new Merchant();
