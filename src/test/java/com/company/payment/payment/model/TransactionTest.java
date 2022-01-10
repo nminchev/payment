@@ -43,6 +43,7 @@ public class TransactionTest {
 			transaction.setAmount(10.12);
 			transaction.setCustomerEmail("niko@email.com");
 			transaction.setCustomerPhone("0888567856");
+			transaction.setReferenceId("1111");
 			transaction.setStatus(TransactionStatus.APPROVED);
 			transaction.setType(TransactionType.AUTHORIZE);
 			transaction.setMerchant(list.get(0));

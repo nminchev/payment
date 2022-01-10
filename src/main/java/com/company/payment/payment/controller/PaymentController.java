@@ -59,7 +59,9 @@ public class PaymentController {
 	@ResponseBody
 	TransactionResponse handleConstraintViolationException(MethodArgumentNotValidException e) {
 		TransactionResponse response = new TransactionResponse();
-		response.setError(e.getFieldError().toString());
+		String message = e.getFieldError().getDefaultMessage();
+		response.setError(message);
 		return response;
 	}
+
 }

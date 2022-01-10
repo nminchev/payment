@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import com.company.payment.payment.model.TransactionType;
+import com.company.payment.payment.model.repository.response.TransactionResponse;
 import com.company.payment.payment.util.PaymentUtils;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -41,16 +42,45 @@ public class PaymentControllerTest {
 		payloadMap.put("amount", "100.11");
 		payloadMap.put("customer_email", "customer@gmail.com");
 		payloadMap.put("customer_phone", "0888567856");
-		payloadMap.put("reference_id", "ddd");
+		payloadMap.put("reference_id", "10000001");
 
 		HttpEntity<PaymentPayload> request = prepareRequest(headers, payloadMap);
 
-		ResponseEntity<String> responsePost = restTestTemplate.postForEntity(HOST, request, String.class);
+		ResponseEntity<TransactionResponse> responsePost = restTestTemplate.postForEntity(HOST, request,
+				TransactionResponse.class);
 		HttpStatus statusCode = responsePost.getStatusCode();
 		log.info(statusCode);
 
-		String body = responsePost.getBody();
-		log.info(body);
+		TransactionResponse body = responsePost.getBody();
+		log.info("error=" + body.getError());
+		log.info("uuid=" + body.getUuid());
+
+	}
+
+	@Test
+	public void testChargeTran() throws Exception {
+		TestRestTemplate restTestTemplate = new TestRestTemplate();
+
+		HttpHeaders headers = prepareHeader();
+
+		Map<String, String> payloadMap = new HashMap<String, String>();
+		payloadMap.put("type", TransactionType.CHARGE.toString());
+		payloadMap.put("uuid", "2ad328e2-c967-4996-be75-208596b81b3d");
+		payloadMap.put("amount", "100.11");
+		payloadMap.put("customer_email", "customer@gmail.com");
+		payloadMap.put("customer_phone", "0888567856");
+		payloadMap.put("reference_id", "10000001");
+
+		HttpEntity<PaymentPayload> request = prepareRequest(headers, payloadMap);
+
+		ResponseEntity<TransactionResponse> responsePost = restTestTemplate.postForEntity(HOST, request,
+				TransactionResponse.class);
+		HttpStatus statusCode = responsePost.getStatusCode();
+		log.info(statusCode);
+
+		TransactionResponse body = responsePost.getBody();
+		log.info("error=" + body.getError());
+		log.info("uuid=" + body.getUuid());
 
 	}
 

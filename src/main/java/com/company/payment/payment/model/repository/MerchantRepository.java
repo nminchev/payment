@@ -23,7 +23,7 @@ public class MerchantRepository {
 	 * @return
 	 */
 	@Transactional
-	public Merchant retrieveMerchantById(Integer merchantId) {
+	public Merchant getMerchantById(Integer merchantId) {
 		return merchantDao.get(merchantId, Merchant.class);
 	}
 
@@ -33,7 +33,7 @@ public class MerchantRepository {
 	 * @param email
 	 */
 	@Transactional
-	public Merchant retrieveMerchantByEmail(String email) {
+	public Merchant getMerchantByEmail(String email) {
 		Query<Merchant> query = merchantDao.getCurrentSession()
 				.createQuery("from " + Merchant.class.getTypeName() + " where email = :email", Merchant.class);
 		query.setParameter("email", email);

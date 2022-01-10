@@ -14,7 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.company.payment.payment.config.login.PaymentUserDetails;
+import com.company.payment.payment.model.Transaction;
 import com.company.payment.payment.model.TransactionType;
+import com.company.payment.payment.model.repository.MerchantRepository;
+import com.company.payment.payment.model.repository.TransactionRepository;
 import com.company.payment.payment.util.PaymentUtils;
 
 public class PayloadValidator implements ConstraintValidator<PayloadValid, String> {
@@ -23,6 +26,12 @@ public class PayloadValidator implements ConstraintValidator<PayloadValid, Strin
 
 	@Autowired
 	private EmailValidator emailValidator;
+
+	@Autowired
+	protected TransactionRepository transactionRepository;
+
+	@Autowired
+	protected MerchantRepository merchantRepository;
 
 	@Override
 	public boolean isValid(String payload, ConstraintValidatorContext context) {
@@ -36,18 +45,24 @@ public class PayloadValidator implements ConstraintValidator<PayloadValid, Strin
 
 			Map<String, String> params = PaymentUtils.convertStringToMap(decrypt);
 			validateType(params, context);
-			validateAmount(params, context);
-			validateCustomerEmail(params, context);
-			validateCustomerPhone(params, context);
-			validateUuid(params, context);
-			validateReferenceId(params, context);
+			String type = params.get("type");
+			TransactionType transactionType = TransactionType.valueOf(type);
+
+			validateAmount(params, transactionType, context);
+			validateCustomerEmail(params, transactionType, context);
+			validateCustomerPhone(params, transactionType, context);
+			validateUuid(params, transactionType, context);
+			validateReferenceId(params, transactionType, context);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			context.disableDefaultConstraintViolation();
+			context.buildConstraintViolationWithTemplate(e.getMessage()).addConstraintViolation();
+
+			log.error(e.getMessage());
 			return false;
 		}
 
-		return false;
+		return true;
 	}
 
 	/**
@@ -75,33 +90,61 @@ public class PayloadValidator implements ConstraintValidator<PayloadValid, Strin
 	 * validate reference_id
 	 * 
 	 * @param params
+	 * @param transactionType
 	 * @param context
 	 */
-	private void validateReferenceId(Map<String, String> params, ConstraintValidatorContext context)
-			throws ValidationException {
-		if (params.containsKey("reference_id")) {
-			String referenceId = params.get("reference_id");
-			if (referenceId == null || "".equals(referenceId)) {
-				throw new ValidationException("referenceId is empty");
+	private void validateReferenceId(Map<String, String> params, TransactionType transactionType,
+			ConstraintValidatorContext context) throws ValidationException {
+		if (!params.containsKey("reference_id")) {
+			throw new ValidationException("reference_id is not present");
+		}
+
+		String referenceId = params.get("reference_id");
+		if (referenceId == null || "".equals(referenceId)) {
+			throw new ValidationException("referenceId is empty");
+		}
+
+		if (transactionType == TransactionType.AUTHORIZE) {
+			PaymentUserDetails userDetails = (PaymentUserDetails) SecurityContextHolder.getContext().getAuthentication()
+					.getPrincipal();
+			Integer merchantId = userDetails.getMerchantId();
+			
+			
+			Transaction transaction = transactionRepository.getTransactionByReferenceId(referenceId, merchantId);
+			if (transaction != null) {
+				throw new ValidationException(
+						String.format("transaction with reference_id %s already authorized", referenceId));
 			}
 		}
+
 	}
 
 	/**
 	 * validate uuid
 	 * 
 	 * @param params
+	 * @param transactionType
 	 * @param context
 	 */
-	private void validateUuid(Map<String, String> params, ConstraintValidatorContext context)
-			throws ValidationException {
-		if (!params.containsKey("uuid")) {
-			throw new ValidationException("uuid is not present");
+	private void validateUuid(Map<String, String> params, TransactionType transactionType,
+			ConstraintValidatorContext context) throws ValidationException {
+		// uuid should be present in case of CHARGE and REFUND
+		if (transactionType == TransactionType.CHARGE || transactionType == TransactionType.REFUND) {
+			if (!params.containsKey("uuid")) {
+				throw new ValidationException("uuid is not present");
+			}
+
+			String uuid = params.get("uuid");
+			if (uuid == null || "".equals(uuid)) {
+				throw new ValidationException("uuid is empty");
+			}
 		}
 
-		String uuid = params.get("uuid");
-		if (uuid == null || "".equals(uuid)) {
-			throw new ValidationException("uuid is empty");
+		// no uuid in case of AUTHORIZE transaction
+		if (transactionType == TransactionType.AUTHORIZE) {
+			if (params.containsKey("uuid")) {
+				throw new ValidationException("uuid should not present");
+			}
 		}
 	}
 
@@ -109,10 +152,11 @@ public class PayloadValidator implements ConstraintValidator<PayloadValid, Strin
 	 * validate customer_phone
 	 * 
 	 * @param params
+	 * @param transactionType
 	 * @param context
 	 */
-	private void validateCustomerPhone(Map<String, String> params, ConstraintValidatorContext context)
-			throws ValidationException {
+	private void validateCustomerPhone(Map<String, String> params, TransactionType transactionType,
+			ConstraintValidatorContext context) throws ValidationException {
 		if (!params.containsKey("customer_phone")) {
 			throw new ValidationException("customer_phone is not present");
 		}
@@ -128,10 +172,11 @@ public class PayloadValidator implements ConstraintValidator<PayloadValid, Strin
 	 * Validate customer email
 	 * 
 	 * @param params
+	 * @param transactionType
 	 * @param context
 	 */
-	private void validateCustomerEmail(Map<String, String> params, ConstraintValidatorContext context)
-			throws ValidationException {
+	private void validateCustomerEmail(Map<String, String> params, TransactionType transactionType,
+			ConstraintValidatorContext context) throws ValidationException {
 		if (!params.containsKey("customer_email")) {
 			throw new ValidationException("customer_email is not present");
 		}
@@ -152,11 +197,12 @@ public class PayloadValidator implements ConstraintValidator<PayloadValid, Strin
 	 * Validate amount
 	 * 
 	 * @param params
+	 * @param transactionType
 	 * @param context
 	 * @throws ValidationException
 	 */
-	private void validateAmount(Map<String, String> params, ConstraintValidatorContext context)
-			throws ValidationException {
+	private void validateAmount(Map<String, String> params, TransactionType transactionType,
+			ConstraintValidatorContext context) throws ValidationException {
 		if (!params.containsKey("amount")) {
 			throw new ValidationException("Amount is not present");
 		}

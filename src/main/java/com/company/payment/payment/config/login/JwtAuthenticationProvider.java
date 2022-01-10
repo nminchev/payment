@@ -39,7 +39,7 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
 			JwtUsernamePasswordAuthenticationToken jwtAuthenticationToken = (JwtUsernamePasswordAuthenticationToken) authentication;
 
 			// Retrieve the token from DB
-			Merchant merchant = merchantRepository.retrieveMerchantById(jwtAuthenticationToken.getMerchantId());
+			Merchant merchant = merchantRepository.getMerchantById(jwtAuthenticationToken.getMerchantId());
 			if (merchant == null) {
 				throw new AuthenticationCredentialsNotFoundException("Merchant not found.");
 			}

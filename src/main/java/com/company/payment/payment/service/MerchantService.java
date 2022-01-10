@@ -42,7 +42,7 @@ public class MerchantService {
 	 * @throws Exception
 	 */
 	public void generateMerchantKeys(Integer merchantId) throws Exception {
-		Merchant merchant = merchantRepository.retrieveMerchantById(merchantId);
+		Merchant merchant = merchantRepository.getMerchantById(merchantId);
 
 		KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
 		generator.initialize(2048);
@@ -138,7 +138,7 @@ public class MerchantService {
 	public void createOrUpdateMerchant(Merchant newMerchant) throws Exception {
 		String email = newMerchant.getEmail();
 
-		Merchant merchant = merchantRepository.retrieveMerchantByEmail(email);
+		Merchant merchant = merchantRepository.getMerchantByEmail(email);
 		if (merchant == null) {
 			merchantRepository.saveOrUpdate(newMerchant);
 

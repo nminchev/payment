@@ -15,29 +15,41 @@ public class AuthorizeAction extends AbstractAction {
 
 	@Override
 	public void processRequest() {
-		Double amount = Double.valueOf(params.get("amount"));
-		String customerEmail = params.get("customer_email");
-		String customerPhone = params.get("customer_phone");
-
-		PaymentUserDetails userDetails = (PaymentUserDetails) SecurityContextHolder.getContext().getAuthentication()
-				.getPrincipal();
-
-		Integer merchantId = userDetails.getMerchantId();
-
-		Merchant merchant = merchantRepository.retrieveMerchantById(merchantId);
-
 		Transaction transaction = new Transaction();
+
+		Double amount = Double.valueOf(params.get("amount"));
 		transaction.setAmount(amount);
+
+		String customerEmail = params.get("customer_email");
 		transaction.setCustomerEmail(customerEmail);
+
+		String customerPhone = params.get("customer_phone");
 		transaction.setCustomerPhone(customerPhone);
+
+		String referenceId = params.get("reference_id");
+		transaction.setReferenceId(referenceId);
+
+		Merchant merchant = retrieveMerchant();
 		transaction.setMerchant(merchant);
+
 		transaction.setStatus(TransactionStatus.APPROVED);
 		transaction.setType(TransactionType.AUTHORIZE);
 
 		transactionRepository.saveOrUpdate(transaction);
 
 		setUuid(transaction.getUuid());
-
 	}
 
+	/**
+	 * Retrieve merchant
+	 * 
+	 * @return
+	 */
+	private Merchant retrieveMerchant() {
+		PaymentUserDetails userDetails = (PaymentUserDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		Integer merchantId = userDetails.getMerchantId();
+		Merchant merchant = merchantRepository.getMerchantById(merchantId);
+		return merchant;
+	}
 }

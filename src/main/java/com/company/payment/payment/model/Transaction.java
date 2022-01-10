@@ -1,6 +1,7 @@
 package com.company.payment.payment.model;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -13,8 +14,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Table(name = "TRANSACTION")
@@ -48,9 +54,22 @@ public class Transaction implements Serializable {
 	@Column(name = "customer_phone", unique = false, nullable = false)
 	private String customerPhone;
 
+	@Column(name = "reference_id", unique = false, nullable = false)
+	private String referenceId;
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "type", unique = false, nullable = false)
 	private TransactionType type;
+
+	@CreationTimestamp
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "create_date")
+	private Date createDate;
+
+	@UpdateTimestamp
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "modify_date")
+	private Date modifyDate;
 
 	@ManyToOne
 	@JoinColumn(name = "merchant_id", unique = true)
@@ -112,12 +131,36 @@ public class Transaction implements Serializable {
 		this.type = type;
 	}
 
+	public Date getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
+	}
+
+	public Date getModifyDate() {
+		return modifyDate;
+	}
+
+	public void setModifyDate(Date modifyDate) {
+		this.modifyDate = modifyDate;
+	}
+
 	public Merchant getMerchant() {
 		return merchant;
 	}
 
 	public void setMerchant(Merchant merchant) {
 		this.merchant = merchant;
+	}
+
+	public String getReferenceId() {
+		return referenceId;
+	}
+
+	public void setReferenceId(String referenceId) {
+		this.referenceId = referenceId;
 	}
 
 }
