@@ -144,6 +144,7 @@ public class PayloadValidator implements ConstraintValidator<PayloadValid, Strin
 			}
 
 			if (transactionType == TransactionType.CHARGE) {
+				// check for already CHARGE transaction for the merchant
 				Transaction changeTransaction = transactionRepository.getTransactionByUuid(uuid, merchantId,
 						TransactionType.CHARGE);
 				if (changeTransaction != null) {
